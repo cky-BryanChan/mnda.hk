@@ -1,0 +1,28 @@
+.template-container {
+  width: 100%;
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.template-container label{
+  color: #bbb;
+  font-weight: 500;
+}
+
+.template-title h1{
+  font-size: 25px;
+}
+
+.template-editBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.template-txt{
+  margin-top: 20px;
+  white-space: pre-line;
+}
