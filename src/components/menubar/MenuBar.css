@@ -19,7 +19,7 @@
   display: none;
   width: 100%;
   padding: 10px 20px;
-  background: rgba(255,255,255,0.5);
+  background: white;
 }
 
 .menubar-background-img {
@@ -33,7 +33,19 @@
   z-index: -1;
 }
 
-.menubar-dropdownBtn:hover {
+.menubar-dropDownMenu{
+  background: white;
+  max-height: 0px;
+  transition: 0.2s ease;
+  overflow: hidden;
+}
+
+.menubar-dropDownMenu.expanded{
+  margin-top: 20px;
+  max-height: 500px;
+}
+
+.menubar-dropDownMenu p.selected{
   color: #1890ff;
 }
 

@@ -52,7 +52,7 @@ class MenuBar extends Component {
       <HamburgerBtn
         expanded={expanded}
         onClick={this.toggle}
-        onOutsideClick={() => this.setState({expanded: false})}
+        onOutsideClick={() => this.setState({ expanded: false })}
       />
     );
   };
@@ -78,15 +78,33 @@ class MenuBar extends Component {
     );
   };
 
+  renderDropDown = () => {
+    const urlArray = window.location.href.split("/");
+    const selected = urlArray[urlArray.length - 1] || options[0].key;
+    const { expanded } = this.state;
+    return (
+      <div className={`menubar-dropDownMenu ${expanded ? "expanded" : ""}`}>
+        {options.map(obj => {
+          const { txt, key } = obj;
+          var cls = key === selected ? "selected" : "";
+          return (
+            <p className={cls} onClick={() => this.handleClick(obj)}>
+              {txt}
+            </p>
+          );
+        })}
+      </div>
+    );
+  };
+
   render() {
     return (
       <div className="menubar-container">
         <div className="menu">{this.renderMenu("horizontal")}</div>
         <img src={bg} className="menubar-background-img" alt="bg" />
         <div className="menu-mobile">
-          <Dropdown overlay={this.renderMenu("vertical")} trigger={["click"]}>
-            {this.renderHambergerBtn()}
-          </Dropdown>
+          {this.renderHambergerBtn()}
+          {this.renderDropDown()}
         </div>
       </div>
     );
