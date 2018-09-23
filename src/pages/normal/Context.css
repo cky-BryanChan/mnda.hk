@@ -15,7 +15,7 @@
 }
 
 .context-container h1{
-  font-size: 1.6em;
+  font-size: 1.6rem;
   font-weight: 700;
 }
 
@@ -26,4 +26,13 @@
 .context-container p{
   font-size: 1.5em;
   white-space: pre-line;
+}
+
+@media only screen and (max-width: 853px) {
+  .context-container h1{
+    font-size: 1.2rem
+  }
+  .context-container p{
+    font-size: 1em;
+  }
 }

@@ -24,8 +24,7 @@
 
 .menubar-background-img {
   position: absolute;
-  width: '100%';
-  height: '100%';
+  height: 100%;
   top: 0;
   left: 0;
   right: 0;
@@ -49,7 +48,7 @@
   color: #1890ff;
 }
 
-@media only screen and (max-width: 620px) {
+@media only screen and (max-width: 853px) {
   .menu {
     display: none;
   }

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import "./MenuBar.css";
 import { withRouter } from "react-router";
-import { Menu, Dropdown } from "antd";
+import { Menu } from "antd";
 import bg from "./header.jpg";
 import HamburgerBtn from "../HamburgerBtn";
 
@@ -88,7 +88,7 @@ class MenuBar extends Component {
           const { txt, key } = obj;
           var cls = key === selected ? "selected" : "";
           return (
-            <p className={cls} onClick={() => this.handleClick(obj)}>
+            <p key={key} className={cls} onClick={() => this.handleClick(obj)}>
               {txt}
             </p>
           );
