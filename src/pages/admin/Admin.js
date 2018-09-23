@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import firebase from "firebase";
 import { withRouter } from "react-router";
-import { Menu, Spin, Icon, Button } from "antd";
+import { Menu, Spin, Icon, Button, Modal } from "antd";
 import "./Admin.css";
 
 /**
@@ -51,7 +51,9 @@ class Admin extends Component {
     selected: options[0].key,
     data: null,
     loading: true,
-    newTemplates: []
+    newTemplates: [],
+    showModal: false,
+    removeIndex: null
   };
 
   componentDidMount() {
@@ -105,7 +107,12 @@ class Admin extends Component {
     setRecord(selected, newData)
       .then(() => getAll())
       .then(spapShot =>
-        this.setState({ data: spapShot.val(), newTemplates: [] })
+        this.setState({
+          data: spapShot.val(),
+          newTemplates: [],
+          removeIndex: null,
+          showModal: false
+        })
       )
       .catch(e => console.log(e.message));
   };
@@ -135,17 +142,17 @@ class Admin extends Component {
     this.firebaseSet(newData);
   }
 
-  handleRemove(index) {
-    const { selected, data } = this.state;
+  handleRemove = () => {
+    const { selected, data, removeIndex } = this.state;
     const currentData = data && data[selected];
     if (currentData) {
       var newData = JSON.parse(JSON.stringify(currentData));
-      newData.splice(index, 1);
+      newData.splice(removeIndex, 1);
     } else {
       newData = [];
     }
     this.firebaseSet(newData);
-  }
+  };
 
   addTemplate = () => {
     const { newTemplates } = this.state;
@@ -174,7 +181,9 @@ class Admin extends Component {
             title={title}
             txt={txt}
             onSave={obj => this.handleSave(index, obj)}
-            onRemove={() => this.handleRemove(index)}
+            onRemove={() =>
+              this.setState({ showModal: true, removeIndex: index })
+            }
           />
         );
       });
@@ -196,7 +205,7 @@ class Admin extends Component {
   };
 
   render() {
-    const { loading } = this.state;
+    const { loading, showModal } = this.state;
     return (
       <div className="admin-container">
         <div className="admin-menu">{this.renderMenu("inline")}</div>
@@ -209,6 +218,13 @@ class Admin extends Component {
             this.renderTemplates()
           )}
         </div>
+        <Modal
+          visible={showModal}
+          onOk={this.handleRemove}
+          onCancel={() => this.setState({ showModal: false })}
+        >
+          <p>確認移除？</p>
+        </Modal>
       </div>
     );
   }

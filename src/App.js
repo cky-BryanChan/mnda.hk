@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Switch, Route } from "react-router-dom";
-import { Context } from "./pages";
+import { Context, Admin, Login } from "./pages";
 import "../node_modules/font-awesome/css/font-awesome.min.css";
 import { MenuBar } from "./components";
 import "../node_modules/antd/dist/antd.css";
@@ -120,14 +120,8 @@ class App extends Component {
             path="/contact"
             render={() => RenderPages(<Context data={data[options[5].key]} />)}
           />
-          <Route
-            path="/login"
-            render={() => RenderPages(<Context type="login" />, "login")}
-          />
-          <Route
-            path="/admin"
-            render={() => RenderPages(<Context type="admin" />, "admin")}
-          />
+          <Route path="/login" component={Login} />
+          <Route path="/admin" component={Admin} />
           <Route
             path="/"
             render={() => RenderPages(<Context data={data[options[0].key]} />)}

@@ -1,13 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Login, Admin } from "../index";
 
 import "./Context.css";
 
 const Context = props => {
-  const { data, type } = props;
-  if (type === "admin") return <Admin />;
-  if (type === "login") return <Login />;
+  const { data } = props;
   if (!data) {
     var rows = <h2>暫無資料</h2>;
   } else {
