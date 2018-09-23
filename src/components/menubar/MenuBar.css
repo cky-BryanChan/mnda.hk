@@ -1,13 +1,14 @@
 .menubar-container {
-  width: '100%';
-  height: 430px;
+  width: 100%;
+  height: 380px;
   position: relative;
   overflow: hidden;
+  padding-bottom: 50px
 }
 
 .menu {
   position: absolute;
-  bottom: 0;
+  bottom: 0px;
   left: 0;
   right: 0;
 }
@@ -24,11 +25,10 @@
 
 .menubar-background-img {
   position: absolute;
-  height: 100%;
+  height: 90%;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
   z-index: -1;
 }
 

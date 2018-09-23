@@ -7,13 +7,15 @@
   margin-bottom: 20px;
 }
 
-.template-container label{
+.template-container label {
   color: #bbb;
   font-weight: 500;
+  margin: 5px 0;
+  display: block;
 }
 
-.template-title h1{
-  font-size: 25px;
+.template-container h1 {
+  font-size: 20px;
 }
 
 .template-editBtn {
@@ -22,7 +24,19 @@
   right: 20px;
 }
 
-.template-txt{
-  margin-top: 20px;
+.template-txt {
   white-space: pre-line;
+}
+
+.template-img {
+  position: relative;
+  width: 100px;
+  min-height: 80px;
+}
+
+.template-img img{
+  width: 100%;
+  margin-top: 5px;
+  border-radius: 3px;
+  overflow: hidden;
 }

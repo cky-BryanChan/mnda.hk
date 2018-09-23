@@ -9,11 +9,18 @@ const Context = props => {
     var rows = <h2>暫無資料</h2>;
   } else {
     rows = data.map((obj, index) => {
-      const { title, txt } = obj;
+      const { title, txt, imageUrl } = obj;
       return (
         <div style={{ width: "100%" }} key={title + index}>
           {title && <h1>{title}</h1>}
-          {txt && <p>{txt}</p>}
+          {imageUrl ? (
+            <div className="context-txt-image">
+              {txt && <p>{txt}</p>}
+              {imageUrl && <img src={imageUrl} alt={imageUrl} />}
+            </div>
+          ) : (
+            txt && <p>{txt}</p>
+          )}
         </div>
       );
     });

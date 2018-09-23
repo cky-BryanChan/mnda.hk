@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Switch, Route } from "react-router-dom";
 import { Context, Admin, Login } from "./pages";
 import "../node_modules/font-awesome/css/font-awesome.min.css";
-import { MenuBar } from "./components";
 import "../node_modules/antd/dist/antd.css";
 import firebase from "firebase";
 
@@ -11,7 +10,8 @@ import { getAll } from "./firebaseFuncs";
 /**
  * Components
  */
-import { FullPageLoader, FullPageMessage } from "./components";
+import { FullPageLoader, FullPageMessage, MenuBar } from "./components";
+import { notification } from "antd";
 
 //keys
 const firebase_api_key = process.env.REACT_APP_FIREBASE_API_KEY;
@@ -21,6 +21,13 @@ const firebase_project_id = process.env.REACT_APP_FIREBASE_PROJECT_ID;
 const firebase_storage_bucket = process.env.REACT_APP_FIREBASE_STORAGE_BUCKET;
 const firebase_messaging_sender_id =
   process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID;
+
+const errorNotification = message => {
+  notification.error({
+    message: "Notification Title",
+    description: message
+  });
+};
 
 const options = [
   {
@@ -81,9 +88,7 @@ class App extends Component {
       .then(snapShot => {
         this.setState({ data: snapShot.val(), loading: false });
       })
-      .catch(e => {
-        console.log(e.message);
-      });
+      .catch(e => errorNotification(e.message));
   }
 
   render() {

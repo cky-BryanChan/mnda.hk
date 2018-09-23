@@ -1,4 +1,4 @@
-.context-container{
+.context-container {
   width: 100%;
   padding: 0 11%;
   padding-bottom: 50px;
@@ -8,31 +8,46 @@
   flex-wrap: wrap;
 }
 
-.context-container h2{
+.context-container h2 {
   font-size: 30px;
   align-self: center;
   color: #888;
 }
 
-.context-container h1{
+.context-container h1 {
   font-size: 1.6rem;
   font-weight: 700;
 }
 
-.context-container > h1:not(:first-child){
+.context-container>h1:not(:first-child) {
   margin-top: 50px;
 }
 
-.context-container p{
+.context-container p {
   font-size: 1.5em;
   white-space: pre-line;
 }
 
+.context-txt-image {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+
+.context-txt-image * {
+  width: 48%;
+  margin-right: 1%;
+}
+
 @media only screen and (max-width: 853px) {
-  .context-container h1{
+  .context-container h1 {
     font-size: 1.2rem
   }
-  .context-container p{
+  .context-container p {
     font-size: 1em;
+  }
+  .context-txt-image * {
+    width: 100%;
+    margin: 10px 0;
   }
 }

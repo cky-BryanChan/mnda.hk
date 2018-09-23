@@ -1,8 +1,22 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Input, Button, Icon } from "antd";
+import { Input, Button, Icon, Upload, message } from "antd";
 
 import "./Template.css";
+
+function getBase64(img, callback) {
+  const reader = new FileReader();
+  reader.addEventListener("load", () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
+
+function beforeUpload(file) {
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error("請上傳 size < 2MB 的圖片");
+  }
+  return isLt2M;
+}
 
 class Template extends Component {
   constructor(props) {
@@ -12,7 +26,9 @@ class Template extends Component {
       mode: props.editMode ? "edit" : "view",
       txt: props.txt || "",
       imageUrl: props.imageUrl || "",
-      title: props.title || ""
+      title: props.title || "",
+      imageLoading: false,
+      imageFile: null
     };
   }
 
@@ -27,7 +43,7 @@ class Template extends Component {
       return (
         <div className="template-title">
           <label>標題</label>
-          <h1>{title || "無"}</h1>
+          <h1>{title || <i>無</i>}</h1>
         </div>
       );
     }
@@ -39,14 +55,13 @@ class Template extends Component {
     return (
       <div className="template-title">
         <label>標題</label>
-        <br />
         <Input
           placeholder="請輸入標題"
           suffix={suffix}
           value={title}
           onChange={e => this.setState({ title: e.target.value })}
           ref={node => (this.titleInput = node)}
-          style={{ marginTop: "10px", width: "250px" }}
+          style={{ width: "250px" }}
         />
       </div>
     );
@@ -63,7 +78,7 @@ class Template extends Component {
       return (
         <div className="template-txt">
           <label>內容</label>
-          <p>{parsed_txt || "無"}</p>
+          <p>{parsed_txt || <i>無</i>}</p>
         </div>
       );
     } else {
@@ -81,16 +96,93 @@ class Template extends Component {
     }
   };
 
+  handleImageUpload = info => {
+    if (info.file.status === "uploading") {
+      this.setState({ imageLoading: true });
+      return;
+    }
+    if (info.file.status === "done") {
+      // Get this url from response in real world.
+      getBase64(info.file.originFileObj, imageUrl =>
+        this.setState({
+          imageUrl,
+          imageLoading: false,
+          imageFile: info.file.originFileObj
+        })
+      );
+    }
+  };
+
+  handleRemoveImg = () => {
+    this.setState({ imageFile: null, imageUrl: null });
+  };
+
+  renderPhoto = () => {
+    var { imageUrl, mode } = this.state;
+    if (mode === "view") {
+      return (
+        <div className="template-img">
+          <label>圖片</label>
+          {imageUrl ? (
+            <img src={imageUrl} alt={imageUrl} />
+          ) : (
+            <h1>
+              <i>無</i>
+            </h1>
+          )}
+        </div>
+      );
+    } else {
+      return (
+        <div className="template-img">
+          <label>圖片</label>
+          {imageUrl ? (
+            <img src={imageUrl} alt={imageUrl} />
+          ) : (
+            <Upload
+              name="avatar"
+              listType="picture-card"
+              className="avatar-uploader"
+              showUploadList={false}
+              action="//jsonplaceholder.typicode.com/posts/"
+              beforeUpload={beforeUpload}
+              onChange={this.handleImageUpload}
+            >
+              <div>
+                <Icon type={this.state.imageLoading ? "loading" : "upload"} />
+                <div className="ant-upload-text">Upload</div>
+              </div>
+            </Upload>
+          )}
+          {imageUrl && (
+            <Button
+              type="danger"
+              onClick={this.handleRemoveImg}
+              style={{ marginTop: "20px" }}
+            >
+              移除圖片 <Icon type="delete" theme="outlined" />
+            </Button>
+          )}
+        </div>
+      );
+    }
+  };
+
+  handleSave = () => {
+    const { onSave = () => {} } = this.props;
+    const { txt, title, imageUrl, imageFile } = this.state;
+    onSave({ txt, title, imageUrl, imageFile });
+    this.setState({ mode: "view" });
+  };
+
   renderToggleBtn = () => {
+    const { txt, title, imageUrl, editMode, onRemove, saving } = this.props;
     const {
-      txt,
-      title,
-      onSave = () => {},
-      editMode,
-      onRemove,
-      saving
-    } = this.props;
-    const { mode, txt: newTxt, title: newTitle } = this.state;
+      mode,
+      txt: newTxt,
+      title: newTitle,
+      imageUrl: newImageUrl
+    } = this.state;
     const isView = mode === "view";
 
     //left btn
@@ -103,19 +195,15 @@ class Template extends Component {
         this.setState({
           mode: isView ? "edit" : "view",
           txt: isView ? newTxt : txt,
-          title: isView ? newTitle : title
+          title: isView ? newTitle : title,
+          imageUrl: isView ? newImageUrl : imageUrl
         });
     }
 
     //right btn
     const type2 = !isView ? "primary" : "danger";
     const btnTxt2 = !isView ? "保存" : "移除";
-    const btnFunc2 = !isView
-      ? () => {
-          onSave({ txt: newTxt, title: newTitle });
-          this.setState({ mode: "view" });
-        }
-      : () => onRemove();
+    const btnFunc2 = !isView ? this.handleSave : () => onRemove();
 
     const loading = !isView ? saving : false;
 
@@ -143,6 +231,7 @@ class Template extends Component {
         {this.renderTitle()}
         {this.renderContent()}
         {this.renderToggleBtn()}
+        {this.renderPhoto()}
       </div>
     );
   }

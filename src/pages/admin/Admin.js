@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import firebase from "firebase";
 import { withRouter } from "react-router";
-import { Menu, Spin, Icon, Button, Modal } from "antd";
+import { Menu, Spin, Icon, Button, Modal, notification } from "antd";
 import "./Admin.css";
 
 /**
@@ -13,7 +13,12 @@ import { isArray } from "util";
 /**
  * Firebase functions
  */
-import { getAll, setRecord } from "../../firebaseFuncs";
+import {
+  getAll,
+  setRecord,
+  uploadImage,
+  removeImage
+} from "../../firebaseFuncs";
 
 const options = [
   {
@@ -55,7 +60,8 @@ class Admin extends Component {
     showModal: false,
     removeIndex: null,
     removing: false,
-    saving: false
+    saving: false,
+    error: []
   };
 
   componentDidMount() {
@@ -69,11 +75,18 @@ class Admin extends Component {
     }
   }
 
+  errorNotification = message => {
+    notification.error({
+      message: "Notification Title",
+      description: message
+    });
+  };
+
   handleClick = obj => {
     const { key } = obj;
     if (key === "logout") {
       firebase.auth().signOut();
-      this.props.history.push("/");
+      this.props.history.push("/login");
     } else {
       this.setState({ selected: obj.key });
     }
@@ -118,15 +131,29 @@ class Admin extends Component {
           saving: false
         })
       )
-      .catch(e => console.log(e.message));
+      .catch(e => this.errorNotification(e.message));
   };
 
   handleAddNew(obj) {
     this.setState({ saving: true });
     const { selected, data } = this.state;
     const currentData = data && data[selected];
-    const newData = currentData ? currentData.concat([obj]) : [obj];
-    this.firebaseSet(newData);
+    const { imageFile, title, txt, imageUrl } = obj;
+    const newObj = { title, txt, imageUrl };
+    const imageName = Date.now();
+    if (imageFile) {
+      uploadImage(selected, imageFile, imageName)
+        .then(url => {
+          newObj.imageUrl = url;
+          newObj.imageName = imageName;
+          var newData = currentData ? currentData.concat([newObj]) : [newObj];
+          this.firebaseSet(newData);
+        })
+        .catch(e => this.errorNotification(e.message));
+    } else {
+      var newData = currentData ? currentData.concat([newObj]) : [newObj];
+      this.firebaseSet(newData);
+    }
   }
 
   handleRemoveNew(index) {
@@ -139,19 +166,51 @@ class Admin extends Component {
     this.setState({ saving: true });
     const { selected, data } = this.state;
     const currentData = data && data[selected];
-    if (currentData) {
-      var newData = JSON.parse(JSON.stringify(currentData));
-      newData.splice(index, 1, obj);
+    const currentObj = currentData && currentData[index];
+    const { imageFile, title, txt, imageUrl } = obj;
+    const newObj = { title, txt, imageUrl };
+    const imageName = currentObj && currentObj.imageName;
+    const newImageName = Date.now();
+    if (imageFile) {
+      if (currentObj && currentObj.imageUrl) {
+        removeImage(selected, imageName);
+      }
+      uploadImage(selected, imageFile, newImageName)
+        .then(url => {
+          newObj.url = url;
+          newObj.imageName = newImageName;
+          if (currentData) {
+            var newData = JSON.parse(JSON.stringify(currentData));
+            newData.splice(index, 1, newObj);
+          } else {
+            newData = [newObj];
+          }
+          this.firebaseSet(newData);
+        })
+        .catch(e => this.errorNotification(e.message));
     } else {
-      newData = [obj];
+      if (currentObj && currentObj.imageUrl && !imageUrl) {
+        removeImage(selected, imageName);
+        newObj.imageName = null;
+      }
+      if (currentData) {
+        var newData = JSON.parse(JSON.stringify(currentData));
+        newData.splice(index, 1, newObj);
+      } else {
+        newData = [newObj];
+      }
+      this.firebaseSet(newData);
     }
-    this.firebaseSet(newData);
   }
 
   handleRemove = () => {
     this.setState({ removing: true });
     const { selected, data, removeIndex } = this.state;
     const currentData = data && data[selected];
+    const currentObj = currentData[removeIndex];
+    if (currentObj.imageName) {
+      removeImage(selected, currentObj.imageName);
+    }
     if (currentData) {
       var newData = JSON.parse(JSON.stringify(currentData));
       newData.splice(removeIndex, 1);
@@ -182,12 +241,13 @@ class Admin extends Component {
     const dateset = data && data[selected];
     if (isArray(dateset)) {
       var rows = dateset.map((obj, index) => {
-        const { title, txt } = obj;
+        const { title, txt, imageUrl } = obj;
         return (
           <Template
             key={title + index}
             title={title}
             txt={txt}
+            imageUrl={imageUrl}
             onSave={obj => this.handleSave(index, obj)}
             onRemove={() =>
               this.setState({ showModal: true, removeIndex: index })
