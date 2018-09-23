@@ -58,7 +58,7 @@ class Template extends Component {
 
     // prevent js injection
     const parsed_txt = txt.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    
+
     if (mode === "view") {
       return (
         <div className="template-txt">
@@ -82,7 +82,14 @@ class Template extends Component {
   };
 
   renderToggleBtn = () => {
-    const { txt, title, onSave = () => {}, editMode, onRemove } = this.props;
+    const {
+      txt,
+      title,
+      onSave = () => {},
+      editMode,
+      onRemove,
+      saving
+    } = this.props;
     const { mode, txt: newTxt, title: newTitle } = this.state;
     const isView = mode === "view";
 
@@ -110,6 +117,8 @@ class Template extends Component {
         }
       : () => onRemove();
 
+    const loading = !isView ? saving : false;
+
     return (
       <div className="template-editBtn">
         <Button type={type} onClick={btnFunc}>
@@ -120,6 +129,7 @@ class Template extends Component {
           type={type2}
           onClick={btnFunc2}
           style={{ marginLeft: "10px" }}
+          loading={loading}
         >
           {btnTxt2}
         </Button>

@@ -53,7 +53,9 @@ class Admin extends Component {
     loading: true,
     newTemplates: [],
     showModal: false,
-    removeIndex: null
+    removeIndex: null,
+    removing: false,
+    saving: false
   };
 
   componentDidMount() {
@@ -111,13 +113,16 @@ class Admin extends Component {
           data: spapShot.val(),
           newTemplates: [],
           removeIndex: null,
-          showModal: false
+          showModal: false,
+          removing: false,
+          saving: false
         })
       )
       .catch(e => console.log(e.message));
   };
 
   handleAddNew(obj) {
+    this.setState({ saving: true });
     const { selected, data } = this.state;
     const currentData = data && data[selected];
     const newData = currentData ? currentData.concat([obj]) : [obj];
@@ -131,6 +136,7 @@ class Admin extends Component {
   }
 
   handleSave(index, obj) {
+    this.setState({ saving: true });
     const { selected, data } = this.state;
     const currentData = data && data[selected];
     if (currentData) {
@@ -143,6 +149,7 @@ class Admin extends Component {
   }
 
   handleRemove = () => {
+    this.setState({ removing: true });
     const { selected, data, removeIndex } = this.state;
     const currentData = data && data[selected];
     if (currentData) {
@@ -155,7 +162,7 @@ class Admin extends Component {
   };
 
   addTemplate = () => {
-    const { newTemplates } = this.state;
+    const { newTemplates, saving } = this.state;
     const length = newTemplates.length;
     const index = length ? length - 1 : 0;
     newTemplates.push(
@@ -164,13 +171,14 @@ class Admin extends Component {
         editMode
         onSave={obj => this.handleAddNew(obj)}
         onRemove={() => this.handleRemoveNew(index)}
+        saving={saving}
       />
     );
     this.setState({ newTemplates });
   };
 
   renderTemplates = () => {
-    const { selected, data, newTemplates } = this.state;
+    const { selected, data, newTemplates, saving } = this.state;
     const dateset = data && data[selected];
     if (isArray(dateset)) {
       var rows = dateset.map((obj, index) => {
@@ -184,6 +192,7 @@ class Admin extends Component {
             onRemove={() =>
               this.setState({ showModal: true, removeIndex: index })
             }
+            saving={saving}
           />
         );
       });
@@ -204,8 +213,12 @@ class Admin extends Component {
     );
   };
 
+  handleModalCancel = () => {
+    this.setState({ showModal: false, removeIndex: null });
+  };
+
   render() {
-    const { loading, showModal } = this.state;
+    const { loading, showModal, removing } = this.state;
     return (
       <div className="admin-container">
         <div className="admin-menu">{this.renderMenu("inline")}</div>
@@ -221,7 +234,20 @@ class Admin extends Component {
         <Modal
           visible={showModal}
           onOk={this.handleRemove}
-          onCancel={() => this.setState({ showModal: false })}
+          onCancel={this.handleModalCancel}
+          footer={[
+            <Button key="back" onClick={this.handleModalCancel}>
+              取消
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={removing}
+              onClick={this.handleRemove}
+            >
+              確認
+            </Button>
+          ]}
         >
           <p>確認移除？</p>
         </Modal>
