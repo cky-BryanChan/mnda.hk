@@ -9,7 +9,7 @@
 }
 
 .context-container a{
-  font-size: 20px;
+  font-size: 1.4em;
   text-decoration: underline;
 }
 
@@ -58,5 +58,8 @@
   .context-txt-image * {
     width: 100%;
     margin: 10px 0;
+  }
+  .context-container a{
+    font-size: 0.9em
   }
 }

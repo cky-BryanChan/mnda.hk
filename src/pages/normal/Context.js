@@ -23,7 +23,7 @@ const Context = props => {
           )}
           {docLinkTxt && (
             <a href={pdfUrl} target="_blank">
-              {`link: ${docLinkTxt}`}
+              {docLinkTxt}
             </a>
           )}
         </div>
