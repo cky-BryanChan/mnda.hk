@@ -9,7 +9,7 @@ const Context = props => {
     var rows = <h2>暫無資料</h2>;
   } else {
     rows = data.map((obj, index) => {
-      const { title, txt, imageUrl } = obj;
+      const { title, txt, imageUrl, docLinkTxt, pdfUrl } = obj;
       return (
         <div style={{ width: "100%" }} key={title + index}>
           {title && <h1>{title}</h1>}
@@ -20,6 +20,11 @@ const Context = props => {
             </div>
           ) : (
             txt && <p>{txt}</p>
+          )}
+          {docLinkTxt && (
+            <a href={pdfUrl} target="_blank">
+              {`link: ${docLinkTxt}`}
+            </a>
           )}
         </div>
       );

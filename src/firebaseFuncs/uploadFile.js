@@ -1,8 +1,10 @@
 import firebase from "firebase";
 
-export function uploadImage(key, file, name) {
+export function uploadFile(key, file, name, extention) {
   var storageRef = firebase.storage().ref();
-  var newImageRef = storageRef.child(`${key}/${name}.jpg`);
+  var newImageRef = storageRef.child(
+    `${key}/${name}${extention ? "." + extention : ""}`
+  );
   return newImageRef.put(file).then(() => {
     return newImageRef.getDownloadURL();
   });

@@ -1,4 +1,4 @@
 export * from "./setRecord";
 export * from "./getAll";
-export * from "./uploadImage";
-export * from "./removeImage";
+export * from "./uploadFile";
+export * from "./removeFile";

@@ -13,12 +13,7 @@ import { isArray } from "util";
 /**
  * Firebase functions
  */
-import {
-  getAll,
-  setRecord,
-  uploadImage,
-  removeImage
-} from "../../firebaseFuncs";
+import { getAll, setRecord, uploadFile, removeFile } from "../../firebaseFuncs";
 
 const options = [
   {
@@ -134,26 +129,34 @@ class Admin extends Component {
       .catch(e => this.errorNotification(e.message));
   };
 
-  handleAddNew(obj) {
+  async handleAddNew(obj) {
     this.setState({ saving: true });
     const { selected, data } = this.state;
     const currentData = data && data[selected];
-    const { imageFile, title, txt, imageUrl } = obj;
+    const {
+      imageFile,
+      title,
+      txt,
+      imageUrl,
+      docName,
+      docFile,
+      docLinkTxt
+    } = obj;
     const newObj = { title, txt, imageUrl };
     const imageName = Date.now();
     if (imageFile) {
-      uploadImage(selected, imageFile, imageName)
-        .then(url => {
-          newObj.imageUrl = url;
-          newObj.imageName = imageName;
-          var newData = currentData ? currentData.concat([newObj]) : [newObj];
-          this.firebaseSet(newData);
-        })
-        .catch(e => this.errorNotification(e.message));
-    } else {
-      var newData = currentData ? currentData.concat([newObj]) : [newObj];
-      this.firebaseSet(newData);
+      var url = await uploadFile(selected, imageFile, imageName, "jpg");
+      newObj.imageUrl = url;
+      newObj.imageName = imageName;
     }
+    if (docFile) {
+      url = await uploadFile(selected, docFile, docName);
+      newObj.pdfUrl = url;
+      newObj.docName = docName;
+      newObj.docLinkTxt = docLinkTxt;
+    }
+    var newData = currentData ? currentData.concat([newObj]) : [newObj];
+    this.firebaseSet(newData);
   }
 
   handleRemoveNew(index) {
@@ -162,45 +165,68 @@ class Admin extends Component {
     this.setState({ newTemplates: updatedTemplates });
   }
 
-  handleSave(index, obj) {
+  async handleSave(index, obj) {
     this.setState({ saving: true });
     const { selected, data } = this.state;
     const currentData = data && data[selected];
     const currentObj = currentData && currentData[index];
-    const { imageFile, title, txt, imageUrl } = obj;
-    const newObj = { title, txt, imageUrl };
+    const {
+      imageFile,
+      title,
+      txt,
+      imageUrl,
+      docFile,
+      docName,
+      docLinkTxt
+    } = obj;
+    const newObj = {
+      title,
+      txt,
+      imageUrl,
+      docLinkTxt,
+      docName,
+      pdfUrl: currentObj && currentObj.pdfUrl
+    };
     const imageName = currentObj && currentObj.imageName;
     const newImageName = Date.now();
     if (imageFile) {
       if (currentObj && currentObj.imageUrl) {
-        removeImage(selected, imageName);
+        removeFile(selected, imageName, "jpg");
       }
-      uploadImage(selected, imageFile, newImageName)
-        .then(url => {
-          newObj.url = url;
-          newObj.imageName = newImageName;
-          if (currentData) {
-            var newData = JSON.parse(JSON.stringify(currentData));
-            newData.splice(index, 1, newObj);
-          } else {
-            newData = [newObj];
-          }
-          this.firebaseSet(newData);
-        })
-        .catch(e => this.errorNotification(e.message));
-    } else {
-      if (currentObj && currentObj.imageUrl && !imageUrl) {
-        removeImage(selected, imageName);
-        newObj.imageName = null;
-      }
-      if (currentData) {
-        var newData = JSON.parse(JSON.stringify(currentData));
-        newData.splice(index, 1, newObj);
-      } else {
-        newData = [newObj];
-      }
-      this.firebaseSet(newData);
+      var url = await uploadFile(selected, imageFile, newImageName, "jpg");
+      newObj.url = url;
+      newObj.imageName = newImageName;
     }
+
+    if (currentObj && currentObj.imageUrl && !imageUrl) {
+      removeFile(selected, imageName, "jpg");
+      newObj.imageName = null;
+    }
+
+    if (docFile) {
+      if (currentObj && currentObj.docName) {
+        removeFile(selected, currentObj.docName);
+      }
+      url = await uploadFile(selected, docFile, docName);
+      newObj.pdfUrl = url;
+      newObj.docName = docName;
+      newObj.docLinkTxt = docLinkTxt;
+    }
+
+    if (currentObj && currentObj.docName && !docName) {
+      removeFile(selected, currentObj.docName);
+      newObj.docName = "";
+      newObj.docLinkTxt = "";
+      newObj.pdfUrl = "";
+    }
+
+    if (currentData) {
+      var newData = JSON.parse(JSON.stringify(currentData));
+      newData.splice(index, 1, newObj);
+    } else {
+      newData = [newObj];
+    }
+    this.firebaseSet(newData);
   }
 
   handleRemove = () => {
@@ -209,8 +235,13 @@ class Admin extends Component {
     const currentData = data && data[selected];
     const currentObj = currentData[removeIndex];
     if (currentObj.imageName) {
-      removeImage(selected, currentObj.imageName);
+      removeFile(selected, currentObj.imageName, "jpg");
     }
+
+    if (currentObj.docName) {
+      removeFile(selected, currentObj.docName);
+    }
+
     if (currentData) {
       var newData = JSON.parse(JSON.stringify(currentData));
       newData.splice(removeIndex, 1);
@@ -241,12 +272,14 @@ class Admin extends Component {
     const dateset = data && data[selected];
     if (isArray(dateset)) {
       var rows = dateset.map((obj, index) => {
-        const { title, txt, imageUrl } = obj;
+        const { title, txt, imageUrl, docName, docLinkTxt } = obj;
         return (
           <Template
             key={title + index}
             title={title}
             txt={txt}
+            docName={docName}
+            docLinkTxt={docLinkTxt}
             imageUrl={imageUrl}
             onSave={obj => this.handleSave(index, obj)}
             onRemove={() =>

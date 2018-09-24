@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Input, Button, Icon, Alert } from "antd";
+import { Input, Button, Icon, Alert, Form } from "antd";
 import "./Login.css";
 import { withRouter } from "react-router";
 import firebase from "firebase";
@@ -54,7 +54,8 @@ class Login extends Component {
     );
   };
 
-  handleLogin = () => {
+  handleLogin = e => {
+    e && e.preventDefault();
     const { email, password } = this.state;
     this.setState({ loading: true });
     firebase
@@ -83,35 +84,39 @@ class Login extends Component {
         <img src={logo} className="login-logo" alt="logo" />
         <div className="login-text-input-wrapper">
           {this.renderError()}
-          <Input
-            placeholder="Enter your email"
-            prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
-            suffix={suffix}
-            value={email}
-            onChange={this.onChangeEmail}
-            ref={node => (this.emailInput = node)}
-            style={{ marginTop: "20px" }}
-          />
+          <Form onSubmit={this.handleLogin}>
+            <Input
+              placeholder="Enter your email"
+              prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+              suffix={suffix}
+              value={email}
+              onChange={this.onChangeEmail}
+              ref={node => (this.emailInput = node)}
+              style={{ marginTop: "20px" }}
+            />
 
-          <Input
-            placeholder="Enter your password"
-            prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
-            suffix={suffix_}
-            value={password}
-            onChange={this.onChangePassword}
-            ref={node => (this.passwordInput = node)}
-            type="password"
-            style={{ marginTop: "20px" }}
-          />
+            <Input
+              placeholder="Enter your password"
+              prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+              suffix={suffix_}
+              value={password}
+              onChange={this.onChangePassword}
+              ref={node => (this.passwordInput = node)}
+              type="password"
+              style={{ marginTop: "20px" }}
+            />
 
-          <Button
-            type="default"
-            style={{ marginTop: "20px" }}
-            onClick={this.handleLogin}
-            loading={loading}
-          >
-            Login
-          </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{ marginTop: "20px", width: '100%' }}
+              onClick={this.handleLogin}
+              loading={loading}
+              className="login-form-button"
+            >
+              Login
+            </Button>
+          </Form>
         </div>
       </div>
     );

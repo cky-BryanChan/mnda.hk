@@ -1,8 +1,15 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Input, Button, Icon, Upload, message } from "antd";
+import { Input, Button, Icon, Upload, message, notification } from "antd";
 
 import "./Template.css";
+
+const errorNotification = message => {
+  notification.error({
+    message: "錯誤",
+    description: message
+  });
+};
 
 function getBase64(img, callback) {
   const reader = new FileReader();
@@ -25,16 +32,25 @@ class Template extends Component {
     this.state = {
       mode: props.editMode ? "edit" : "view",
       txt: props.txt || "",
-      imageUrl: props.imageUrl || "",
       title: props.title || "",
+      imageUrl: props.imageUrl || "",
       imageLoading: false,
-      imageFile: null
+      imageFile: null,
+      docName: props.docName || "",
+      docFile: null,
+      docLinkTxt: props.docLinkTxt || "",
+      wrongFormat: false
     };
   }
 
   emptyTitle = () => {
     this.titleInput.focus();
     this.setState({ title: "" });
+  };
+
+  emptyDocLinkTxt = () => {
+    this.docLinkTxtInput.focus();
+    this.setState({ docLinkTxt: "" });
   };
 
   renderTitle = () => {
@@ -101,7 +117,7 @@ class Template extends Component {
       this.setState({ imageLoading: true });
       return;
     }
-    if (info.file.status === "done") {
+    if (info.file.status === "done" || info.file.status === "error") {
       // Get this url from response in real world.
       getBase64(info.file.originFileObj, imageUrl =>
         this.setState({
@@ -144,7 +160,6 @@ class Template extends Component {
               listType="picture-card"
               className="avatar-uploader"
               showUploadList={false}
-              action="//jsonplaceholder.typicode.com/posts/"
               beforeUpload={beforeUpload}
               onChange={this.handleImageUpload}
             >
@@ -168,20 +183,145 @@ class Template extends Component {
     }
   };
 
+  handleRemovePDF = () => {
+    this.setState({ docFile: null, docName: "", docLinkTxt: "" });
+  };
+
+  beforeUploadPDF = file => {
+    const isPDF = file.type === "application/pdf";
+    if (!isPDF) {
+      message.error("請上傳 PDF 文檔!");
+      this.setState({ wrongFormat: true });
+    } else {
+      this.setState({ wrongFormat: false });
+    }
+    return isPDF;
+  };
+
+  handleUploadPDF = info => {
+    if (info.file.status === "uploading") {
+      this.setState({ pdfLoading: true });
+      return;
+    }
+    if (info.file.status === "done" || info.file.status === "error") {
+      if (!this.state.wrongFormat) {
+        this.setState({
+          docFile: info.file.originFileObj,
+          pdfLoading: false,
+          docName: info.file.name,
+          wrongFormat: false
+        });
+      }
+    }
+  };
+
+  renderDocument = () => {
+    var { docName, mode, docLinkTxt, pdfLoading } = this.state;
+    const suffix = docLinkTxt ? (
+      <Icon type="close-circle" onClick={this.emptyDocLinkTxt} />
+    ) : null;
+
+    if (mode === "view") {
+      return (
+        <div className="template-img">
+          <label>PDF 文件</label>
+          {docName ? (
+            <div>
+              <p>{docLinkTxt || <i>無</i>}</p>
+              <div className="template-filename">
+                <Icon type="paper-clip" theme="outlined" />
+                {docName}
+              </div>
+            </div>
+          ) : (
+            <h1>
+              <i>無</i>
+            </h1>
+          )}
+        </div>
+      );
+    } else {
+      return (
+        <div className="template-img">
+          <label>PDF 文件</label>
+          {docName ? (
+            <div>
+              <Input
+                placeholder="請輸入連結文字"
+                suffix={suffix}
+                value={docLinkTxt}
+                onChange={e => this.setState({ docLinkTxt: e.target.value })}
+                ref={node => (this.docLinkTxtInput = node)}
+                style={{ width: "250px" }}
+              />
+              <div className="template-filename">
+                <Icon type="paper-clip" theme="outlined" />
+                {docName}
+              </div>
+            </div>
+          ) : (
+            <Upload
+              name="file"
+              showUploadList={false}
+              beforeUpload={this.beforeUploadPDF}
+              onChange={this.handleUploadPDF}
+            >
+              <Button>
+                <Icon type={pdfLoading ? "loading" : "upload"} /> 上載PDF
+              </Button>
+            </Upload>
+          )}
+          {docName && (
+            <Button
+              type="danger"
+              onClick={this.handleRemovePDF}
+              style={{ marginTop: "20px" }}
+            >
+              移除PDF <Icon type={"delete"} theme="outlined" />
+            </Button>
+          )}
+        </div>
+      );
+    }
+  };
+
   handleSave = () => {
     const { onSave = () => {} } = this.props;
-    const { txt, title, imageUrl, imageFile } = this.state;
-    onSave({ txt, title, imageUrl, imageFile });
+    const {
+      txt,
+      title,
+      imageUrl,
+      imageFile,
+      docName,
+      docFile,
+      docLinkTxt
+    } = this.state;
+    if (docFile && !docLinkTxt) {
+      errorNotification("請輸入 PDF 連結文字");
+      return;
+    }
+    onSave({ txt, title, imageUrl, imageFile, docName, docFile, docLinkTxt });
     this.setState({ mode: "view" });
   };
 
   renderToggleBtn = () => {
-    const { txt, title, imageUrl, editMode, onRemove, saving } = this.props;
+    const {
+      txt,
+      title,
+      imageUrl,
+      editMode,
+      onRemove,
+      saving,
+      docName,
+      docLinkTxt
+    } = this.props;
     const {
       mode,
       txt: newTxt,
       title: newTitle,
-      imageUrl: newImageUrl
+      imageUrl: newImageUrl,
+      docName: newDocName,
+      docLinkTxt: newDocLinkTxt
     } = this.state;
     const isView = mode === "view";
 
@@ -196,7 +336,9 @@ class Template extends Component {
           mode: isView ? "edit" : "view",
           txt: isView ? newTxt : txt,
           title: isView ? newTitle : title,
-          imageUrl: isView ? newImageUrl : imageUrl
+          imageUrl: isView ? newImageUrl : imageUrl,
+          docName: isView ? newDocName : docName,
+          docLinkTxt: isView ? newDocLinkTxt : docLinkTxt
         });
     }
 
@@ -232,6 +374,7 @@ class Template extends Component {
         {this.renderContent()}
         {this.renderToggleBtn()}
         {this.renderPhoto()}
+        {this.renderDocument()}
       </div>
     );
   }
