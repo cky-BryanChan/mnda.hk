@@ -39,7 +39,9 @@ class Template extends Component {
       docName: props.docName || "",
       docFile: null,
       docLinkTxt: props.docLinkTxt || "",
-      wrongFormat: false
+      wrongFormat: false,
+      link: props.link || "",
+      linkTxt: props.linkTxt || ""
     };
   }
 
@@ -51,6 +53,16 @@ class Template extends Component {
   emptyDocLinkTxt = () => {
     this.docLinkTxtInput.focus();
     this.setState({ docLinkTxt: "" });
+  };
+
+  emptyLinkTxt = () => {
+    this.linkTxtInput.focus();
+    this.setState({ linktxt: "" });
+  };
+
+  emptyLink = () => {
+    this.linkInput.focus();
+    this.setState({ link: "" });
   };
 
   renderTitle = () => {
@@ -282,6 +294,50 @@ class Template extends Component {
     }
   };
 
+  renderLink = () => {
+    const { mode, link, linkTxt } = this.state;
+    if (mode === "view") {
+      return (
+        <div className="template-link">
+          <label>Link</label>
+          <p>{linkTxt || <i>無</i>}</p>
+          <p>{link || <i>無</i>}</p>
+        </div>
+      );
+    }
+
+    const suffix = linkTxt ? (
+      <Icon type="close-circle" onClick={this.emptyLinkTxt} />
+    ) : null;
+
+    const suffix_ = link ? (
+      <Icon type="close-circle" onClick={this.emptyLink} />
+    ) : null;
+
+    return (
+      <div className="template-link">
+        <label>Link</label>
+        <Input
+          placeholder="請輸入文字"
+          suffix={suffix}
+          value={linkTxt}
+          onChange={e => this.setState({ linkTxt: e.target.value })}
+          ref={node => (this.linkTxtInput = node)}
+          style={{ width: "250px" }}
+        />
+        <br />
+        <Input
+          placeholder="請輸入網址"
+          suffix={suffix_}
+          value={link}
+          onChange={e => this.setState({ link: e.target.value })}
+          ref={node => (this.linkInput = node)}
+          style={{ width: "250px", marginTop: "20px" }}
+        />
+      </div>
+    );
+  };
+
   handleSave = () => {
     const { onSave = () => {} } = this.props;
     const {
@@ -291,13 +347,25 @@ class Template extends Component {
       imageFile,
       docName,
       docFile,
-      docLinkTxt
+      docLinkTxt,
+      link,
+      linkTxt
     } = this.state;
     if (docFile && !docLinkTxt) {
       errorNotification("請輸入 PDF 連結文字");
       return;
     }
-    onSave({ txt, title, imageUrl, imageFile, docName, docFile, docLinkTxt });
+    onSave({
+      txt,
+      title,
+      imageUrl,
+      imageFile,
+      docName,
+      docFile,
+      docLinkTxt,
+      link,
+      linkTxt
+    });
     this.setState({ mode: "view" });
   };
 
@@ -372,6 +440,7 @@ class Template extends Component {
         {this.renderToggleBtn()}
         {this.renderPhoto()}
         {this.renderDocument()}
+        {this.renderLink()}
       </div>
     );
   }

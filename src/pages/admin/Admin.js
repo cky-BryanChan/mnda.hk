@@ -140,9 +140,17 @@ class Admin extends Component {
       imageUrl,
       docName,
       docFile,
-      docLinkTxt
+      docLinkTxt,
+      link,
+      linkTxt
     } = obj;
-    const newObj = { title, txt, imageUrl };
+    const newObj = {
+      title,
+      txt,
+      imageUrl,
+      link,
+      linkTxt
+    };
     const imageName = Date.now();
     if (imageFile) {
       var url = await uploadFile(selected, imageFile, imageName, "jpg");
@@ -178,6 +186,8 @@ class Admin extends Component {
       docFile,
       docName,
       docLinkTxt,
+      link,
+      linkTxt
     } = obj;
     const newObj = {
       title,
@@ -185,10 +195,15 @@ class Admin extends Component {
       imageUrl,
       docLinkTxt,
       docName,
+      link,
+      linkTxt,
       pdfUrl: currentObj && currentObj.pdfUrl
     };
 
-    if(!newObj.pdfUrl) delete newObj.pdfUrl;
+    Object.keys(newObj).map(key => {
+      if(!newObj[key]) delete newObj[key];
+      return null;
+    })
 
     const imageName = currentObj && currentObj.imageName;
     const newImageName = Date.now();
@@ -275,7 +290,7 @@ class Admin extends Component {
     const dateset = data && data[selected];
     if (isArray(dateset)) {
       var rows = dateset.map((obj, index) => {
-        const { title, txt, imageUrl, docName, docLinkTxt } = obj;
+        const { title, txt, imageUrl, docName, docLinkTxt, link, linkTxt } = obj;
         return (
           <Template
             key={title + index}
@@ -284,6 +299,8 @@ class Admin extends Component {
             docName={docName}
             docLinkTxt={docLinkTxt}
             imageUrl={imageUrl}
+            link={link}
+            linkTxt={linkTxt}
             onSave={obj => this.handleSave(index, obj)}
             onRemove={() =>
               this.setState({ showModal: true, removeIndex: index })
