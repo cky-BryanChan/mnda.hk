@@ -26,11 +26,11 @@ const options = [
   },
   {
     key: "adjust",
-    txt: "有關調解"
+    txt: "調解／談判資訊"
   },
   {
     key: "lesson",
-    txt: "培訓課程/講座"
+    txt: "培訓課程／講座"
   },
   {
     key: "news",
@@ -177,7 +177,7 @@ class Admin extends Component {
       imageUrl,
       docFile,
       docName,
-      docLinkTxt
+      docLinkTxt,
     } = obj;
     const newObj = {
       title,
@@ -187,6 +187,9 @@ class Admin extends Component {
       docName,
       pdfUrl: currentObj && currentObj.pdfUrl
     };
+
+    if(!newObj.pdfUrl) delete newObj.pdfUrl;
+
     const imageName = currentObj && currentObj.imageName;
     const newImageName = Date.now();
     if (imageFile) {

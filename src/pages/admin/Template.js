@@ -87,14 +87,11 @@ class Template extends Component {
     const { mode, txt } = this.state;
     const { TextArea } = Input;
 
-    // prevent js injection
-    const parsed_txt = txt.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
     if (mode === "view") {
       return (
         <div className="template-txt">
           <label>內容</label>
-          <p>{parsed_txt || <i>無</i>}</p>
+          <p>{txt || <i>無</i>}</p>
         </div>
       );
     } else {

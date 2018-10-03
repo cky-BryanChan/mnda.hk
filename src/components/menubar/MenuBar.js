@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import "./MenuBar.css";
 import { withRouter } from "react-router";
 import { Menu } from "antd";
-import bg from "./header.jpg";
 import HamburgerBtn from "../HamburgerBtn";
 
 const options = [
@@ -16,11 +15,11 @@ const options = [
   },
   {
     key: "adjust",
-    txt: "有關調解"
+    txt: "調解／談判資訊"
   },
   {
     key: "lesson",
-    txt: "培訓課程/講座"
+    txt: "培訓課程／講座"
   },
   {
     key: "news",
@@ -101,7 +100,6 @@ class MenuBar extends Component {
     return (
       <div className="menubar-container">
         <div className="menu">{this.renderMenu("horizontal")}</div>
-        <img src={bg} className="menubar-background-img" alt="bg" />
         <div className="menu-mobile">
           {this.renderHambergerBtn()}
           {this.renderDropDown()}

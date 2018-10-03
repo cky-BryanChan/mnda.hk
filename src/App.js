@@ -40,11 +40,11 @@ const options = [
   },
   {
     key: "adjust",
-    txt: "有關調解"
+    txt: "調解／談判資訊"
   },
   {
     key: "lesson",
-    txt: "培訓課程/講座"
+    txt: "培訓課程／講座"
   },
   {
     key: "news",

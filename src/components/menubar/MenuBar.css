@@ -1,9 +1,8 @@
 .menubar-container {
   width: 100%;
-  height: 380px;
+  height: 350px;
   position: relative;
-  overflow: hidden;
-  padding-bottom: 50px
+  background: url('./header.jpg') no-repeat top center;
 }
 
 .menu {
@@ -21,15 +20,6 @@
   width: 100%;
   padding: 10px 20px;
   background: white;
-}
-
-.menubar-background-img {
-  position: absolute;
-  height: 90%;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: -1;
 }
 
 .menubar-dropDownMenu{
