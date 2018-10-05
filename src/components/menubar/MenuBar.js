@@ -3,6 +3,7 @@ import "./MenuBar.css";
 import { withRouter } from "react-router";
 import { Menu } from "antd";
 import HamburgerBtn from "../HamburgerBtn";
+import headerImg from './header.jpg';
 
 const options = [
   {
@@ -99,6 +100,9 @@ class MenuBar extends Component {
   render() {
     return (
       <div className="menubar-container">
+        <div className="menubar-bg-image">
+          <img src={headerImg} alt="bg"/>
+        </div>
         <div className="menu">{this.renderMenu("horizontal")}</div>
         <div className="menu-mobile">
           {this.renderHambergerBtn()}
