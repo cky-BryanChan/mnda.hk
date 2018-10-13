@@ -290,7 +290,12 @@ class Admin extends Component {
         saving={saving}
       />
     );
-    this.setState({ newTemplate: nt, toHead });
+    this.setState({ newTemplate: nt, toHead }, () => {
+    if (!this.state.toHead) {
+      var scrollingElement = document.scrollingElement || document.body;
+      scrollingElement.scrollTop = scrollingElement.scrollHeight;
+    }
+    });
   };
 
   renderTemplates = () => {
@@ -341,15 +346,20 @@ class Admin extends Component {
       <div className="admin-templates-wrapper">
         <div className="admin-template-addBtn">
           <Button type="default" onClick={() => this.addTemplate(false)}>
-            新增
+            新增至尾
             <Icon type="plus" theme="outlined" />
           </Button>
-          <Button type="default" onClick={() => this.addTemplate(true)}>
+          <Button
+            type="default"
+            onClick={() => this.addTemplate(true)}
+            style={{ marginLeft: 10 }}
+          >
             新增至首
             <Icon type="plus" theme="outlined" />
           </Button>
         </div>
         {rows}
+        <div id="anchor-last" />
       </div>
     );
   };
