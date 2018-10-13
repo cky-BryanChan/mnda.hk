@@ -14,9 +14,13 @@ const Context = props => {
         <div style={{ width: "100%" }} key={title + index}>
           {title && <h1 style={{ marginTop: "20px" }}>{title}</h1>}
           {imageUrl ? (
-            <div className="context-txt-image">
+            <div className="context-txt-image-container">
               {txt && <p>{txt}</p>}
-              {imageUrl && <img src={imageUrl} alt={imageUrl} />}
+              {imageUrl && (
+                <div className="context-image">
+                  <img src={imageUrl} alt={imageUrl} />
+                </div>
+              )}
             </div>
           ) : (
             txt && <p>{txt}</p>
