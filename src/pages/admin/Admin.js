@@ -51,7 +51,8 @@ class Admin extends Component {
     selected: options[0].key,
     data: null,
     loading: true,
-    newTemplates: [],
+    newTemplate: null,
+    toHead: null,
     showModal: false,
     removeIndex: null,
     removing: false,
@@ -119,7 +120,7 @@ class Admin extends Component {
       .then(spapShot =>
         this.setState({
           data: spapShot.val(),
-          newTemplates: [],
+          newTemplate: null,
           removeIndex: null,
           showModal: false,
           removing: false,
@@ -131,7 +132,7 @@ class Admin extends Component {
 
   async handleAddNew(obj) {
     this.setState({ saving: true });
-    const { selected, data } = this.state;
+    const { selected, data, toHead } = this.state;
     const currentData = data && data[selected];
     const {
       imageFile,
@@ -163,14 +164,23 @@ class Admin extends Component {
       newObj.docName = docName;
       newObj.docLinkTxt = docLinkTxt;
     }
-    var newData = currentData ? currentData.concat([newObj]) : [newObj];
+
+    if (currentData) {
+      if (toHead) {
+        currentData.unshift(newObj);
+      } else {
+        currentData.push(newObj);
+      }
+      var newData = currentData;
+    } else {
+      newData = [newObj];
+    }
+
     this.firebaseSet(newData);
   }
 
-  handleRemoveNew(index) {
-    const { newTemplates } = this.state;
-    const updatedTemplates = newTemplates.slice(1, index);
-    this.setState({ newTemplates: updatedTemplates });
+  handleRemoveNew() {
+    this.setState({ newTemplate: null });
   }
 
   async handleSave(index, obj) {
@@ -201,9 +211,9 @@ class Admin extends Component {
     };
 
     Object.keys(newObj).map(key => {
-      if(!newObj[key]) delete newObj[key];
+      if (!newObj[key]) delete newObj[key];
       return null;
-    })
+    });
 
     const imageName = currentObj && currentObj.imageName;
     const newImageName = Date.now();
@@ -269,28 +279,34 @@ class Admin extends Component {
     this.firebaseSet(newData);
   };
 
-  addTemplate = () => {
-    const { newTemplates, saving } = this.state;
-    const length = newTemplates.length;
-    const index = length ? length - 1 : 0;
-    newTemplates.push(
+  addTemplate = toHead => {
+    const { saving } = this.state;
+    var nt = (
       <Template
-        key={index + "new"}
+        key="new"
         editMode
         onSave={obj => this.handleAddNew(obj)}
-        onRemove={() => this.handleRemoveNew(index)}
+        onRemove={() => this.handleRemoveNew()}
         saving={saving}
       />
     );
-    this.setState({ newTemplates });
+    this.setState({ newTemplate: nt, toHead });
   };
 
   renderTemplates = () => {
-    const { selected, data, newTemplates, saving } = this.state;
+    const { selected, data, newTemplate, saving, toHead } = this.state;
     const dateset = data && data[selected];
     if (isArray(dateset)) {
       var rows = dateset.map((obj, index) => {
-        const { title, txt, imageUrl, docName, docLinkTxt, link, linkTxt } = obj;
+        const {
+          title,
+          txt,
+          imageUrl,
+          docName,
+          docLinkTxt,
+          link,
+          linkTxt
+        } = obj;
         return (
           <Template
             key={title + index}
@@ -312,12 +328,24 @@ class Admin extends Component {
     } else {
       rows = [];
     }
-    rows = rows.concat(newTemplates);
+
+    if (newTemplate) {
+      if (toHead) {
+        rows.unshift(newTemplate);
+      } else {
+        rows.push(newTemplate);
+      }
+    }
+
     return (
       <div className="admin-templates-wrapper">
         <div className="admin-template-addBtn">
-          <Button type="default" onClick={this.addTemplate}>
+          <Button type="default" onClick={() => this.addTemplate(false)}>
             新增
+            <Icon type="plus" theme="outlined" />
+          </Button>
+          <Button type="default" onClick={() => this.addTemplate(true)}>
+            新增至首
             <Icon type="plus" theme="outlined" />
           </Button>
         </div>
